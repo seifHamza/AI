@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Core | Authentication</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #090d16 0%, #111827 50%, #1e1b4b 100%);
+            color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        @keyframes slideInFromRight {
+            0% {
+                opacity: 0;
+                transform: translateX(100vw);
+            }
+            60% {
+                transform: translateX(-10px);
+            }
+            80% {
+                transform: translateX(5px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 380px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            animation: slideInFromRight 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        .animate-item {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.9s; }
+        .delay-2 { animation-delay: 1.1s; }
+        .delay-3 { animation-delay: 1.3s; }
+
+        /* ستايل كلمة AI Core المضافة حديثاً */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .brand-header h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-header p {
+            margin: 6px 0 0 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #374151;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: #38bdf8;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #9ca3af;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid #374151;
+            background: #0b0f19;
+            color: #ffffff;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: all 0.25s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+            background: #0f172a;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #38bdf8, #6366f1);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-submit:disabled {
+            background: #374151;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message-box {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="brand-header animate-item delay-1">
+            <h1>AI Core</h1>
+        </div>
+
+        <div class="auth-tabs animate-item delay-2">
+            <button class="tab-btn active" onclick="switchTab('signin')">Sign In</button>
+            <button class="tab-btn" onclick="switchTab('signup')">Create Account</button>
+        </div>
+
+        <div class="animate-item delay-3">
+            <form id="signInForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="login_username">USERNAME</label>
+                    <input type="text" id="login_username" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="login_password">PASSWORD</label>
+                    <input type="password" id="login_password" required>
+                </div>
+                <button type="submit" class="btn-submit">Sign In</button>
+            </form>
+
+            <form id="signUpForm" class="auth-form">
+                <div class="form-group">
+                    <label for="reg_username">CHOOSE USERNAME</label>
+                    <input type="text" id="reg_username" autocomplete="off" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg_password">CREATE PASSWORD</label>
+                    <input type="password" id="reg_password" required>
+                </div>
+                <button type="submit" class="btn-submit">Create Account</button>
+            </form>
+
+            <div id="messageBox" class="message-box"></div>
+        </div>
+    </div>
+
+    <script>
+        if (!localStorage.getItem('user_seif_hamza')) {
+            localStorage.setItem('user_seif_hamza', '123456');
+        }
+
+        function switchTab(type) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById('messageBox').style.display = 'none';
+
+            if (type === 'signin') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('signInForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('signUpForm').classList.add('active');
+            }
+        }
+
+        document.getElementById('signInForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('login_username').value;
+            const pass = document.getElementById('login_password').value;
+            const btn = this.querySelector('.btn-submit');
+            const msg = document.getElementById('messageBox');
+
+            btn.disabled = true;
+            btn.innerText = 'Verifying...';
+            msg.style.display = 'none';
+
+            setTimeout(() => {
+                msg.style.display = 'block';
+                const savedPassword = localStorage.getItem(`user_${user}`);
+
+                if (savedPassword && savedPassword === pass) {
+                    btn.innerText = 'Access Granted';
+                    btn.style.background = '#10b981';
+                    msg.style.background = 'rgba(16, 185, 129, 0.2)';
+                    msg.style.color = '#10b981';
+                    msg.innerText = `Welcome back, ${user}!`;
+                    localStorage.setItem('last_logged_user', user);
+                } else {
+                    btn.disabled = false;
+                    btn.innerText = 'Sign In';
+                    msg.style.background = 'rgba(239, 68, 68, 0.2)';
+                    msg.style.color = '#ef4444';
+                    msg.innerText = 'Account not found or wrong password.';
+                }
+            }, 800);
+        });
+
+        document.getElementById('signUpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('reg_username').value;
+            const pass = document.getElementById('reg_password').value;
+            const btn = this.querySelector('.btn-submit');
+            const msg = document.getElementById('messageBox');
+
+            btn.disabled = true;
+            btn.innerText = 'Creating Identity...';
+            msg.style.display = 'none';
+
+            setTimeout(() => {
+                msg.style.display = 'block';
+
+                if (localStorage.getItem(`user_${user}`)) {
+                    btn.disabled = false;
+                    btn.innerText = 'Create Account';
+                    msg.style.background = 'rgba(239, 68, 68, 0.2)';
+                    msg.style.color = '#ef4444';
+                    msg.innerText = 'This username is already taken.';
+                } else {
+                    localStorage.setItem(`user_${user}`, pass);
+                    btn.innerText = 'Account Created!';
+                    btn.style.background = '#10b981';
+                    msg.style.background = 'rgba(16, 185, 129, 0.2)';
+                    msg.style.color = '#10b981';
+                    msg.innerText = 'Success! You can now switch to Sign In tab to enter.';
+                    document.getElementById('reg_username').value = '';
+                    document.getElementById('reg_password').value = '';
+                    btn.disabled = false;
+                }
+            }, 1000);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const lastUser = localStorage.getItem('last_logged_user');
+            if (lastUser) {
+                document.getElementById('login_username').value = lastUser;
+                document.getElementById('login_password').value = localStorage.getItem(`user_${lastUser}`) || '';
+            }
+        });
+    </script>
+
+</body>
+</html>
